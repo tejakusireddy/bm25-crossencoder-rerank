@@ -19,45 +19,46 @@ A lightweight, production-lean reranking layer that boosts the relevance of sear
 flowchart TB
   %% ======= CLIENT LAYER =======
   subgraph C[Client & Entry]
-    UI[Dev Portal / CLI / IDE]
-    API[FastAPI /search]
-    A_B[A/B Toggle bm25|hybrid|rerank]
+    UI["Dev Portal / CLI / IDE"]
+    API["FastAPI /search"]
+    A_B["A/B Toggle<br/>bm25&#124;hybrid&#124;rerank"]
+    A_B --> NEXT["Next"]
   end
 
   %% ======= SAFETY & CONTROL =======
   subgraph G[Guardrails & Control]
-    REDACT[Secret Redaction\n(keys, tokens, creds)]
-    RATE[Rate-limit & Auth\n(tenant/ACL optional)]
-    CACHE[Cache (query_hash, candidate_ids -> rerank scores)]
-    TIMEOUT[Timeout + SLA Fallback\n(if slow -> return hybrid/BM25)]
+    REDACT["Secret Redaction<br/>(keys, tokens, creds)"]
+    RATE["Rate-limit & Auth<br/>(tenant/ACL optional)"]
+    CACHE["Cache<br/>(query_hash, candidate_ids -&gt; rerank scores)"]
+    TIMEOUT["Timeout + SLA Fallback<br/>(if slow -&gt; return hybrid/BM25)"]
   end
 
   %% ======= RETRIEVAL LAYER =======
   subgraph R[Retrieval]
     subgraph IDX[Indexing]
-      ING[Ingest & Chunk\n- Code-aware splitter (func/class)\n- Doc splitter (headings, 800–1500 tokens)\n- Metadata: repo, path, language, symbol, heading]
-      ES[(OpenSearch/Elasticsearch\nBM25)]
-      FAISS[(FAISS Dense Index\nMiniLM/mpnet)]
+      ING["Ingest &amp; Chunk<br/>• Code-aware splitter (func/class)<br/>• Doc splitter (headings, 800–1500 tokens)<br/>• Metadata: repo, path, language, symbol, heading"]
+      ES[(OpenSearch/Elasticsearch<br/>BM25)]
+      FAISS[(FAISS Dense Index<br/>MiniLM/mpnet)]
       CONF[conf/index.yaml]
     end
-    RETRIEVE[Retrieve Top-K (50–200)]
-    FUSE[Score Fusion\n0.6*bm25 + 0.4*dense]
+    RETRIEVE["Retrieve Top-K (50–200)"]
+    FUSE["Score Fusion<br/>0.6*bm25 + 0.4*dense"]
   end
 
   %% ======= RERANKER LAYER =======
   subgraph RR[Reranker]
-    BATCH[Batcher (32/64), fp16,\nmax_len=512]
-    CE[bge-reranker-base\n(or LLM API)]
-    RTOP[Return Top-N (e.g., 10)\n+ snippets, path, symbol]
+    BATCH["Batcher (32/64), fp16,<br/>max_len=512"]
+    CE["bge-reranker-base<br/>(or LLM API)"]
+    RTOP["Return Top-N (e.g., 10)<br/>+ snippets, path, symbol"]
   end
 
   %% ======= EVALUATION & OBS =======
-  subgraph EVAL[Evaluation & Ops]
-    METRICS[MRR@10, NDCG@10, Recall@50\nLatency p50/p95, Cost/query]
-    QRELS[qrels.tsv (labels)]
-    DSETS[CodeSearchNet subset &\ninternal doc samples]
+  subgraph EVAL[Evaluation &amp; Ops]
+    METRICS["MRR@10, NDCG@10, Recall@50<br/>Latency p50/p95, Cost/query"]
+    QRELS[qrels.tsv -labels]
+    DSETS["CodeSearchNet subset &amp;<br/>internal doc samples"]
     MLFLOW[(mlflow runs)]
-    LOGS[Query Logs & Difficult-Query Miner]
+    LOGS["Query Logs &amp; Difficult-Query Miner"]
   end
 
   %% ======= FLOW =======
