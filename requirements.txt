@@ -1,0 +1,13 @@
+opensearch-py==2.7.1
+tqdm==4.66.4
+fastapi==0.111.0
+uvicorn==0.30.1
+sentence-transformers==3.0.1
+transformers==4.43.3
+torch>=2.2
+faiss-cpu==1.8.0
+pytrec_eval==0.5
+pandas==2.2.2
+numpy==1.26.4
+pyyaml==6.0.1
+datasets==2.19.1
